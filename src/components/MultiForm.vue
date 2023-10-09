@@ -2,8 +2,9 @@
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { computed, reactive, ref, watch } from 'vue';
+import Check from '../components/Check.vue';
 
-const stepsTitle = ['Личные данные', 'Паспорт', 'Подтверждение', 'Подписание договора'];
+const stepsTitle = ['Личные данные', 'Паспорт', 'Подписание договора', 'Подтверждение'];
 const maxStep = 4;
 const doRequest = ref(true);
 const route = useRoute();
@@ -41,7 +42,6 @@ const submit = async ({ target }) => {
   try {
     if (!doRequest.value) {
       toNext();
-      // router.push({name: 'step', params: { id: `${+step.value + 1}` }});
       return ;
     }
     const data = new FormData(target);
@@ -54,7 +54,6 @@ const submit = async ({ target }) => {
     doRequest.value = false;
     if (status === 201) {
       toNext();
-      // router.push({name: 'step', params: { id: `${+step.value + 1}` }});
     }
   } catch(e) {
     alert('Что-то пошло не так')
@@ -82,12 +81,11 @@ const toNext = () => {
             <path d="M6.06651 2.10552C5.86342 2.30867 5.74933 2.58417 5.74933 2.87143C5.74933 3.15869 5.86342 3.43419 6.06651 3.63735L11.429 8.99985L6.06651 14.3623C5.86917 14.5667 5.75998 14.8403 5.76245 15.1244C5.76491 15.4084 5.87885 15.6801 6.07971 15.881C6.28057 16.0818 6.55228 16.1958 6.83633 16.1982C7.12037 16.2007 7.39402 16.0915 7.59834 15.8942L13.7268 9.76576C13.9299 9.56261 14.0439 9.28711 14.0439 8.99985C14.0439 8.71259 13.9299 8.43709 13.7268 8.23393L7.59834 2.10552C7.39519 1.90242 7.11969 1.78833 6.83243 1.78833C6.54517 1.78833 6.26967 1.90242 6.06651 2.10552Z" fill="#e63232"/>
           </svg>
         </RouterLink>
-        <h1 class="form-wrapper__title">{{ stepsTitle[+step - 1] }}</h1>
+        <h1 class="form-wrapper__title" v-if="+step < maxStep">{{ stepsTitle[+step - 1] }}</h1>
       </div>
-      <div class="form-wrapper__header_nav">
+      <div v-if="+step < maxStep" class="form-wrapper__header_nav">
         <span>шаг {{ step }} из {{ maxStep }}</span>
-        <span v-if="+step < maxStep">Следующий шаг: {{ stepsTitle[step] }} </span>
-        <span v-else>Подписать договор</span>
+        <span>Следующий шаг: {{ stepsTitle[step] }} </span>
       </div>
     </div>
     <form class="form-wrapper__form" v-if="step === '1'" @submit.prevent="submit">
@@ -196,13 +194,7 @@ const toNext = () => {
       </div>
       <button class="btn" type="submit">Проверить код</button>
     </form>
-    <div
-      class="chech-wrapper"
-      v-if="+step > maxStep"
-    >
-      <p class="chech-wrapper__text">Идет проверка ваших данных</p>
-      <p class="chech-wrapper__text">Это займет до 30 минут</p>
-    </div>
+    <Check v-if="+step > maxStep"/>
   </div>
 </template>
 
@@ -292,17 +284,5 @@ const toNext = () => {
 .form-code__input-wrapper {
   margin-bottom: 40px;
   text-align: start;
-}
-
-.chech-wrapper {
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  flex-direction: column;
-  min-height: 500px;
-}
-
-.chech-wrapper__text {
-  text-align: center;
 }
 </style>
